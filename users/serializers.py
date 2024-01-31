@@ -21,11 +21,11 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {"password": {"write_only": True, "min_length": 8}}
 
     def create(self, validated_data: dict) -> User:
-        """Create a new user with encrypted password and return it"""
+        """Create a new users with encrypted password and return it"""
         return User.objects.create_user(**validated_data)
 
     def update(self, instance: User, validated_data: dict) -> User:
-        """Update a user, set the password correctly  and return it"""
+        """Update a users, set the password correctly  and return it"""
         first_name = validated_data.get("first_name", None)
         last_name = validated_data.get("last_name", None)
         password = validated_data.pop("password", None)
