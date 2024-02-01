@@ -42,3 +42,24 @@ class UsersRegistrationAPITests(TestCase):
 
         data = get_user_model().objects.all()
         self.assertEqual(len(data), 1)
+
+
+class AuthenticatedUserApiTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email="test@test.com",
+            password="<PASSWORD>",
+            first_name="John",
+            last_name="Doe",
+        )
+        self.client.force_authenticate(user=self.user)
+
+    def test_update_user_password(self):
+        res = self.client.patch(
+            reverse("users:manage"),
+            {"password": "password123"}
+        )
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.user.check_password("password123"))
