@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -53,7 +55,7 @@ class UnauthorizedBooksApiTests(TestCase):
             "author": "Test Author",
             "cover": "SOFT",
             "inventory": 3,
-            "daily_fee": 1.99,
+            "daily_fee": Decimal("1.99"),
         }
         response = self.client.post(BOOKS_BASE_URL)
 
@@ -86,3 +88,29 @@ class UnauthorizedBooksApiTests(TestCase):
         response = self.client.delete(url)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class AdminUserBooksApiTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.admin_user = get_user_model().objects.create_user(
+            email="test@admin.com", password="testpass123", is_staff=True
+        )
+        self.client.force_authenticate(self.admin_user)
+
+    def test_create_book(self):
+        payload = {
+            "title": "Test Admin",
+            "author": "Test Author",
+            "cover": "SOFT",
+            "inventory": 3,
+            "daily_fee": Decimal("1.99"),
+        }
+        response = self.client.post(BOOKS_BASE_URL, payload)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        book = Book.objects.get(id=response.data["id"])
+        for key in payload.keys():
+            self.assertEqual(payload[key], getattr(book, key))
+
+
