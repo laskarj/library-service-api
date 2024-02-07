@@ -5,7 +5,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 
 from books.models import Book
-from books.serializers import BookListSerializer, BookDetailSerializer
+from books.serializers import BookSerializer
 
 
 BOOKS_BASE_URL = reverse("books:book-list")
@@ -42,12 +42,12 @@ class UnauthorizedBooksApiTests(TestCase):
         response = self.client.get(BOOKS_BASE_URL)
 
         books = Book.objects.all()
-        serializer = BookListSerializer(books, many=True)
+        serializer = BookSerializer(books, many=True)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
 
-    def test_create_book_forbidden(self):
+    def test_create_book_unauthorized(self):
         payload = {
             "title": "Test Book",
             "author": "Test Author",
@@ -57,7 +57,7 @@ class UnauthorizedBooksApiTests(TestCase):
         }
         response = self.client.post(BOOKS_BASE_URL)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_retrieve_book_detail(self):
         book = sample_book()
@@ -65,24 +65,24 @@ class UnauthorizedBooksApiTests(TestCase):
         url = detail_url(book.id)
         response = self.client.get(url)
 
-        serializer = BookDetailSerializer(book)
+        serializer = BookSerializer(book)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
 
-    def test_update_book_detail_not_allowed(self):
+    def test_update_book_detail_unauthorized(self):
         book = sample_book()
         url = detail_url(book.id)
 
         response = self.client.patch(url, {"title": "New title"})
 
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         book.refresh_from_db()
         self.assertEqual(book.title, "Test Book")
 
-    def test_delete_book_not_allowed(self):
+    def test_delete_book_unauthorized(self):
         book = sample_book()
         url = detail_url(book.id)
         response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
