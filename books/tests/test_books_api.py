@@ -113,4 +113,11 @@ class AdminUserBooksApiTests(TestCase):
         for key in payload.keys():
             self.assertEqual(payload[key], getattr(book, key))
 
+    def test_update_book(self):
+        book = sample_book()
+        response = self.client.patch(detail_url(book.id), {"title": "New title"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        book.refresh_from_db()
+        serializer = BookSerializer(book)
+        self.assertEqual(response.data, serializer.data)
