@@ -115,9 +115,20 @@ class AdminUserBooksApiTests(TestCase):
 
     def test_update_book(self):
         book = sample_book()
-        response = self.client.patch(detail_url(book.id), {"title": "New title"})
+        url = detail_url(book.id)
+        response = self.client.patch(url, {"title": "New title"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         book.refresh_from_db()
         serializer = BookSerializer(book)
         self.assertEqual(response.data, serializer.data)
+
+    def test_delete_book(self):
+        book = sample_book()
+        url = detail_url(book.id)
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        book_is_exist = Book.objects.filter(id=book.id).exists()
+        self.assertFalse(book_is_exist)
