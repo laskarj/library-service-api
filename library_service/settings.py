@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -20,6 +21,9 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -42,6 +46,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "debug_toolbar",
+    "drf_spectacular",
+    "users",
 ]
 
 MIDDLEWARE = [
@@ -52,6 +61,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = "library_service.urls"
@@ -91,31 +101,24 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": (
-            "django.contrib.auth.password_validation"
-            ".UserAttributeSimilarityValidator"
-        ),
+        "NAME": "django.contrib.auth.password_validation"
+        ".UserAttributeSimilarityValidator",
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation" 
-            ".MinimumLengthValidator"
-        ),
+        "NAME": "django.contrib.auth.password_validation"
+                ".MinimumLengthValidator",
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation"
-            ".CommonPasswordValidator"
-        ),
+        "NAME": "django.contrib.auth.password_validation"
+                ".CommonPasswordValidator",
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation"
-            ".NumericPasswordValidator"
-        ),
+        "NAME": "django.contrib.auth.password_validation"
+                ".NumericPasswordValidator",
     },
 ]
 
+AUTH_USER_MODEL = "users.User"
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -138,3 +141,36 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZE",
+}
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Library Service API",
+    "DESCRIPTION": (
+        "The project aims to modernize the operations of a local "
+        "library by introducing an online management system for "
+        "book borrowings."
+    ),
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "defaultModelRendering": "model",
+        "defaultModelsExpandDepth": 2,
+        "defaultModelExpandDepth": 2,
+    },
+}
