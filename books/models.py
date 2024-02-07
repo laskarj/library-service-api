@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class Book(models.Model):
@@ -16,14 +17,13 @@ class Book(models.Model):
         (must be a non-negative decimal with up to 2 decimal places).
     """
 
-    COVER_CHOICES = (
-        ("HARD", "Hard cover"),
-        ("SOFT", "Soft cover"),
-    )
+    class CoverChoices(models.TextChoices):
+        HARD = "HARD", _("Hard cover")
+        SOFT = "SOFT", _("Soft cover")
 
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255)
-    cover = models.CharField(max_length=16, choices=COVER_CHOICES)
+    cover = models.CharField(max_length=4, choices=CoverChoices.choices)
     inventory = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     daily_fee = models.DecimalField(
         max_digits=8, decimal_places=2, validators=[MinValueValidator(0)]
