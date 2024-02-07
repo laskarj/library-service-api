@@ -5,7 +5,6 @@ from books.permissions import IsAdminUserOrReadOnly
 from books.models import Book
 from books.serializers import (
     BookSerializer,
-    InventorySerializer,
 )
 
 
@@ -15,6 +14,4 @@ class BookViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminUserOrReadOnly, )
 
     def get_serializer_class(self) -> ModelSerializer:
-        if self.action in ("put", "patch"):
-            return InventorySerializer
         return BookSerializer
