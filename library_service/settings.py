@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "drf_spectacular",
     "users",
+    "books",
 ]
 
 MIDDLEWARE = [
