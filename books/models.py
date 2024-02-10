@@ -28,3 +28,9 @@ class Book(models.Model):
     daily_fee = models.DecimalField(
         max_digits=8, decimal_places=2, validators=[MinValueValidator(0)]
     )
+
+    def __str__(self) -> str:
+        return (
+            f"Title: {self.title};\n Author: {self.author};\n"
+            f" Cover: {self.cover};\n Inventory: {self.inventory}"
+        )
